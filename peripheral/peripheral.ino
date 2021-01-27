@@ -15,7 +15,7 @@ void setup() {
     while(1);
   }
 
-  BLE.setLocalName("Soil Monitor");
+  BLE.setLocalName("SoilMonitor");
   BLE.setAdvertisedService(soilService);
   soilService.addCharacteristic(soilHydration);
   BLE.addService(soilService);
@@ -30,6 +30,18 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   BLEDevice central = BLE.central();
+
+  if(central){
+    Serial.print("Connected to central:");  
+    Serial.println(central.address());
+  }
+
+  while(central.connected()){
+    // code to be executed while peripheral is connected to master
+  }
+
+  Serial.println("Disconnected from central");
+  
   
 }
 
