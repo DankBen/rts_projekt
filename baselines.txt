@@ -1,4 +1,4 @@
 Sensor baseline readings:
 Ambient Light Sensor:
-Soil Humidity Sensor 1:
+Soil Humidity Sensor 1: Reading Air: ~640, Reading Submerged: ~ 120, First Reading Dirt: ~380
 Soil Humidity Sensor 2:
