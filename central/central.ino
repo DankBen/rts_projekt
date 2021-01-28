@@ -17,10 +17,11 @@ void setup(){
 
 void loop(){
   BLEDevice peripheral = BLE.available();
+  BLECharacteristic soilCharacteristic;
   if (peripheral) {
-       BLE.stopScan();
+        BLE.stopScan();
         Serial.print("found device");
-        Serial.print(peripheral.localName());
+        Serial.println(peripheral.localName());
         if (!peripheral.connect()) {
           Serial.println("Failed to connect!");
           return;
@@ -31,5 +32,16 @@ void loop(){
           peripheral.disconnect();
           return;
         }
+        soilCharacteristic = peripheral.characteristic("1001");
+        Serial.println("setup finished");
+   }
+   while(peripheral.connected()){
+    int valueread = 0;
+    Serial.println("aaa");
+    byte val = 0;
+    soilCharacteristic.readValue(val);
+    valueread = (int)val;
+    Serial.println(val);
+    
    }
 }
