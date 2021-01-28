@@ -1,5 +1,8 @@
 #include <ArduinoBLE.h>
 #include <Arduino_HTS221.h>
+#include <Arduino_APDS9960.h>
+
+
 
 void setup(){
   Serial.begin(9600);
@@ -15,6 +18,11 @@ void setup(){
   if (!HTS.begin()){
     Serial.println("Failed to initialize humidity temperature sensor");
     while(1);
+  }
+
+  if(!ADPS.begin()){
+    Serial.println("Failed to initialize ambient light sensor");
+    while(1);  
   }
 
   Serial.println("starting BLE as central");

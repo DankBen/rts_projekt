@@ -1,0 +1,4 @@
+Sensor baseline readings:
+Ambient Light Sensor:
+Soil Humidity Sensor 1:
+Soil Humidity Sensor 2:
