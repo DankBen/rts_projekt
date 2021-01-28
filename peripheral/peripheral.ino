@@ -36,10 +36,18 @@ void loop() {
     Serial.println(central.address());
   }
 
+  int fakesoil = 0;
+  
   while(central.connected()){
     // code to be executed while peripheral is connected to master
+    fakesoil++;
+    soilHydration.writeValue(fakesoil);
+    delay(200);
+    Serial.println(fakesoil);
   }
 
+  delay(400);
+  
   Serial.println("Disconnected from central");
   
   
