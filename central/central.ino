@@ -1,8 +1,4 @@
 #include <ArduinoBLE.h>
-#include <Arduino_HTS221.h>
-#include <Arduino_APDS9960.h>
-
-
 
 void setup(){
   Serial.begin(9600);
@@ -13,16 +9,6 @@ void setup(){
     Serial.println("starting BLE failed!");
 
     while(1);
-  }
-
-  if (!HTS.begin()){
-    Serial.println("Failed to initialize humidity temperature sensor");
-    while(1);
-  }
-
-  if(!ADPS.begin()){
-    Serial.println("Failed to initialize ambient light sensor");
-    while(1);  
   }
 
   Serial.println("starting BLE as central");
@@ -60,5 +46,15 @@ void loop(){
    }
 }
 
-int calculateWatering(){
+
+
+// returns representation of how soon water is needed on a scale from 0 to 10
+float calcNeededWater(int soil1, int soil2){
+  // if the soil is below this threshold, the plants need to be watered immediately
+  if (soil1 < 280 || soil2 < 280){
+    return 10.0;
+  }
+  
+  
+  
 }
