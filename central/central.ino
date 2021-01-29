@@ -18,7 +18,7 @@ void setup(){
     while(1); 
   } 
 
-  if(!ADPS.begin()){  
+  if(!APDS.begin()){  
     Serial.println("Failed to initialize ambient light sensor");  
     while(1);   
   }
@@ -66,7 +66,28 @@ float calcNeededWater(int soil1, int soil2){
   if (soil1 < 280 || soil2 < 280){
     return 10.0;
   }
+
+  float total = 0.0;
+
+  int r, g, b, a;
+  APDS.readColor(r,g,b,a);
   
+  // if its too dark, we never water 
+  if ( a < 100){
+    return 0.0;  
+  }
+
   
-  
+  float temp = HTS.readTemperature();
+
+  // low temperature -> lesss water evaporates
+  if (temp < 22.0 && temp > 10.0){
+    total +=  (22.0 - temp) * 0.33;
+  }
+
+  // base formula 
+
+  total += ((500-soil1) * 0.1818 ) + ((500-soil2) * 0.1818 );
+
+  return total;
 }
