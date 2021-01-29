@@ -36,28 +36,32 @@ void loop() {
     Serial.println(central.address());
   }
 
-  int fakesoil = 0;
   
   while(central.connected()){
     // code to be executed while peripheral is connected to master
-    fakesoil++;
-    soilHydration.writeValue(fakesoil);
-    delay(200);
-    Serial.println(fakesoil);
+    soilHydration.writeValue(readMoisture());
+    delay(20000);
   }
 
   delay(400);
   
   Serial.println("Disconnected from central");
   
-  
 }
 
 
 
 int readMoisture(){
-  int moisture = analogRead(A0);
-  Serial.print("read Value from Moisture Sensor: ");
-  Serial.println(moisture);
-  return moisture;
+  //int moisture = analogRead(A0);
+  int avg = 0;
+  for(int i = 0; i < 5; i++){
+    avg += analogRead(A0);
+    Serial.print("read Value from Moisture Sensor: ");
+    Serial.println(avg);
+    delay(300);
+  }
+
+  avg /= 5;
+  Serial.println(avg);
+  return avg;
 }
