@@ -41,11 +41,13 @@ void loop() {
     // code to be executed while peripheral is connected to master
     soilHydration.writeValue(readMoisture());
     delay(20000);
+    
   }
 
   delay(400);
   
   Serial.println("Disconnected from central");
+  
   
 }
 
@@ -62,6 +64,6 @@ int readMoisture(){
   }
 
   avg /= 5;
-  Serial.println(avg);
+  
   return avg;
 }
