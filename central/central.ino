@@ -69,11 +69,15 @@ float calcNeededWater(int soil1, int soil2){
 
   float total = 0.0;
 
+  while (! APDS.colorAvailable()) {
+    delay(5);
+  }
+  
   int r, g, b, a;
   APDS.readColor(r,g,b,a);
   
   // if its too dark, we never water 
-  if ( a < 100){
+  if ( a < 300){
     return 0.0;  
   }
 
