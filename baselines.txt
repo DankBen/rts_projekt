@@ -1,4 +1,4 @@
 Sensor baseline readings:
-Ambient Light Sensor:
+Ambient Light Sensor: Complete Dark: 0, Flashlight on Sensor 4097
 Soil Humidity Sensor 1: Reading Air: ~640, Reading Submerged: ~ 120, First Reading Dirt: ~380
-Soil Humidity Sensor 2:
+Soil Humidity Sensor 2: Same as Humidity Sensor 1.
