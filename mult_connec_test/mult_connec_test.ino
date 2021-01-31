@@ -13,41 +13,31 @@ void setup() {
 
   Serial.println("BLE Central multi connect test");
 
-  BLE.scanForName("SoilMonitor", true);
 
 }
 
 void loop() {
-  BLEDevice peripheral1 = BLE.available();
-  BLEDevice peripheral2 = BLE.available();
+  BLEDevice peripheral1 = connectToUuid("1000");
+  delay(100);
+  BLEDevice peripheral2 = connectToUuid("2000");
   BLECharacteristic soilCharacteristic_p1;
   BLECharacteristic soilCharacteristic_p2;
+  delay(100);
+  
+  if(peripheral1.connect()){
+    soilCharacteristic_p1 = peripheral1.characteristic("1001");
+    Serial.println("AAA");
 
-
-  if(peripheral1){
-    Serial.print("found device 1");
-    Serial.println(peripheral1.localName());
-    if (!peripheral1.connect()) {
-      Serial.println("Failed to connect!");
-      return;
-    }
-      soilCharacteristic_p1 = peripheral1.characteristic("1001");
-      Serial.println("setup of p1 finished");
   }
 
-  if(peripheral2){
-    Serial.print("found device 2");
-    Serial.println(peripheral2.localName());
-    if (!peripheral2.connect()) {
-      Serial.println("Failed to connect!");
-      return;
-    }
-    soilCharacteristic_p2 = peripheral2.characteristic("1001");
-    Serial.println("setup of p2 finished");
+  if(peripheral2.connect()){
+    soilCharacteristic_p2 = peripheral2.characteristic("2001");
+    Serial.println("BBB");
   }
-
+  
+  int stamp = millis();
   while(peripheral1.connected() || peripheral2.connected()){
-      
+    Serial.println("CCC");
     if (peripheral1.connected()){
       byte val = 0;
       soilCharacteristic_p1.readValue(val);
@@ -61,8 +51,42 @@ void loop() {
       Serial.print("Soil Monitor 2 reads: ");
       Serial.println(val);      
     }
-
+    
+    if (millis() > stamp + 5000){
+      if(!(peripheral1.connected() && peripheral2.connected())){
+              Serial.println("brrr");
+              break;
+      }
+      else{
+        stamp = millis();
+        Serial.println("stopping");
+        BLE.stopScan();
+      }
+    }
     delay(100);
    }
+  Serial.println("broken");
+}
+
+
+BLEDevice connectToUuid(char Uuid[]){
+  Serial.print("Connecting to BLE Device with UUID: ");
+  Serial.println(Uuid);
+  BLE.scanForUuid(Uuid);
+  BLEDevice peripheral = BLE.available();
+  if (peripheral){
+    Serial.print("found device: ");
+    Serial.println(peripheral.localName());
+    if (!peripheral.connect()) {
+      Serial.print("Failed to connect to ");
+      Serial.println(Uuid);
+      peripheral.disconnect();
+      return peripheral;
+    }
+      Serial.print("setup finished of ");
+      Serial.println(Uuid);
+      return peripheral;
+  }
+  //  BLE.stopScan();
 
 }

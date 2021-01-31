@@ -36,21 +36,25 @@ void setup(){
   Serial.println("starting BLE as central");
 }
 
-void loop(){
-  int soil_1, soil_2 = 0;
+int soil_1, soil_2 = 0;
+int stamp = millis();
 
-  int stamp = millis();
+void loop(){
 
   if(soil_1 == 0 || soil_2 == 0){
-    BLEDevice peripheral = connectToUuid("1000");
+    if(soil_1 == 0){
+      BLEDevice peripheral1 = connectToUuid("1000");
+      delay(1000);
+      soil_1 = readSoilMoisture(peripheral1, 1);
+      return;
+    }
     delay(1000);
-    soil_1 = readSoilMoisture(peripheral, 1);
-
-    delay(1000);
-    
-    peripheral = connectToUuid("2000");
-    delay(1000);
-    soil_2 = readSoilMoisture(peripheral, 2);
+    if(soil_2 == 0){
+      BLEDevice peripheral2 = connectToUuid("2000");
+      delay(1000);
+      soil_2 = readSoilMoisture(peripheral2, 2);
+      return;
+    }
   }
 
   while(millis() > stamp + 5000 ){
@@ -59,7 +63,7 @@ void loop(){
     }
     true;
   }
-  
+  delay(2000);
   float value = calcNeededWater(soil_1, soil_2);
   Serial.println(value);
 
@@ -76,6 +80,7 @@ BLEDevice connectToUuid(char Uuid[]){
 
   
   if (peripheral){
+    BLE.stopScan();
     Serial.print("found device: ");
     Serial.println(peripheral.localName());
     // check for connection
@@ -111,6 +116,19 @@ int readSoilMoisture(BLEDevice peripheral, int device){
 
   
   peripheral.disconnect();    
+}
+
+
+void indicate(float moisture){
+  if(moisture < 3){
+    
+  }
+  if(moisture < 7){
+    
+  }
+  else{
+    
+  }
 }
 
 // returns representation of how soon water is needed on a scale from 0 to 10
