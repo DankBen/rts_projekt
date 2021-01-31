@@ -43,6 +43,6 @@ void loop(){
   digitalWrite(GREEN,HIGH);
   delay(1000);
   digitalWrite(BLUE, HIGH);
-  digitalWrite(LED_PWR, HIGH);
+  digitalWrite(LED_PWR, HIGH);m
 
 }
