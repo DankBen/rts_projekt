@@ -1,11 +1,20 @@
 #include <Arduino_HTS221.h>
 #include <Arduino_APDS9960.h>
 
+#define RED 22
+#define GREEN 23
+#define BLUE 24
+#define LED_PWR 25
 
 void setup(){
   Serial.begin(9600);
   while(!Serial);
 
+  pinMode(RED, OUTPUT);
+  pinMode(BLUE, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+  pinMode(LED_PWR, OUTPUT);
+  
   if (!HTS.begin()){
     Serial.println("Failed to initialize humidity temperature sensor");
     while(1);
@@ -29,4 +38,11 @@ void loop(){
   Serial.print(HTS.readTemperature());
   Serial.println(" °C");
   delay(1000);
+  digitalWrite(RED, HIGH);
+  delay(1000);
+  digitalWrite(GREEN,HIGH);
+  delay(1000);
+  digitalWrite(BLUE, HIGH);
+  digitalWrite(LED_PWR, HIGH);
+
 }
