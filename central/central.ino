@@ -2,11 +2,21 @@
 #include <Arduino_HTS221.h>  
 #include <Arduino_APDS9960.h>
 
+#define RED 22
+#define GREEN 23
+#define BLUE 24
+#define LED_PWR 25
+
 void setup(){
+  // initialization´
   Serial.begin(9600);
   while(!Serial);
-
-  // initialization
+  
+  pinMode(RED, OUTPUT);
+  pinMode(BLUE, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+  pinMode(LED_PWR, OUTPUT);
+  
   if (!BLE.begin()){
     Serial.println("starting BLE failed!");
 
@@ -24,45 +34,88 @@ void setup(){
   }
   
   Serial.println("starting BLE as central");
-  BLE.scanForName("SoilMonitor");
 }
 
 void loop(){
-  BLEDevice peripheral = BLE.available();
-  BLECharacteristic soilCharacteristic;
-  if (peripheral) {
-        BLE.stopScan();
-        Serial.print("found device");
-        Serial.println(peripheral.localName());
-        if (!peripheral.connect()) {
-          Serial.println("Failed to connect!");
-          return;
-        }
-  
-        if (!peripheral.discoverAttributes()) {
-          Serial.println("Attribute discovery failed!");
-          peripheral.disconnect();
-          return;
-        }
-        soilCharacteristic = peripheral.characteristic("1001");
-        Serial.println("setup finished");
-   }
-   while(peripheral.connected()){
-    int valueread = 0;
-    Serial.println("aaa");
-    byte val = 0;
-    soilCharacteristic.readValue(val);
-    valueread = (int)val;
-    Serial.println(val);
+  int soil_1, soil_2 = 0;
+
+  int stamp = millis();
+
+  if(soil_1 == 0 || soil_2 == 0){
+    BLEDevice peripheral = connectToUuid("1000");
+    delay(1000);
+    soil_1 = readSoilMoisture(peripheral, 1);
+
+    delay(1000);
     
-   }
+    peripheral = connectToUuid("2000");
+    delay(1000);
+    soil_2 = readSoilMoisture(peripheral, 2);
+  }
+
+  while(millis() > stamp + 5000 ){
+    if(soil_1 == 0 || soil_2 == 0){
+      return;  
+    }
+    true;
+  }
+  
+  float value = calcNeededWater(soil_1, soil_2);
+  Serial.println(value);
+
+  soil_1 = 0;
+  soil_2 = 0;
+  
+}
+
+BLEDevice connectToUuid(char Uuid[]){
+  Serial.print("Connecting to BLE Device with UUID: ");
+  Serial.println(Uuid);
+  BLE.scanForUuid(Uuid);
+  BLEDevice peripheral = BLE.available();
+
+  
+  if (peripheral){
+    Serial.print("found device: ");
+    Serial.println(peripheral.localName());
+    // check for connection
+    if (!peripheral.connect()) {
+      Serial.print("Failed to connect to ");
+      Serial.println(Uuid);
+      peripheral.disconnect();
+      return peripheral;
+    }
+
+    // check if the peripheral device is setup correctly
+    if (!peripheral.discoverAttributes()) {
+      Serial.println("Attribute discovery failed!");
+      peripheral.disconnect();
+      return peripheral;
+    }
+    Serial.print("setup finished of ");
+    Serial.println(Uuid);
+    return peripheral;
+  }  
 }
 
 
+int readSoilMoisture(BLEDevice peripheral, int device){
+  if (peripheral.connected()){
+    BLECharacteristic soilCharacteristic = peripheral.characteristic(device == 1 ? "1001" : "2001");
+    byte val = 0;
+    soilCharacteristic.readValue(val);
+    Serial.print(device == 1 ? "Soil Monitor 1 reads: " : "Soil Monitor 2 reads: ");
+    Serial.println(val);
+    Serial.println((int) val);  
+  }
+
+  
+  peripheral.disconnect();    
+}
 
 // returns representation of how soon water is needed on a scale from 0 to 10
 float calcNeededWater(int soil1, int soil2){
-  // if the soil is below this threshold, the plants need to be watered immediately
+  // if the soil is below this threshol+d, the plants need to be watered immediately
   if (soil1 < 280 || soil2 < 280){
     return 10.0;
   }

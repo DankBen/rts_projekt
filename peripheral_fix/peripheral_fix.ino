@@ -1,7 +1,7 @@
 #include <ArduinoBLE.h>
 
-BLEService soilService("1000");
-BLEIntCharacteristic soilHydration("1001", BLERead | BLENotify); 
+BLEService soilService("2000");
+BLEIntCharacteristic soilHydration("2001", BLERead | BLENotify); 
 
 void setup() {
   // put your setup code here, to run once:
