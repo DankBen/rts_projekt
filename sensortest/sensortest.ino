@@ -14,6 +14,9 @@ void setup(){
   pinMode(BLUE, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(LED_PWR, OUTPUT);
+  digitalWrite(RED, HIGH);
+  digitalWrite(BLUE, HIGH);
+  digitalWrite(GREEN, HIGH);
   
   if (!HTS.begin()){
     Serial.println("Failed to initialize humidity temperature sensor");
@@ -38,11 +41,11 @@ void loop(){
   Serial.print(HTS.readTemperature());
   Serial.println(" °C");
   delay(1000);
-  digitalWrite(RED, HIGH);
+  digitalWrite(RED, LOW);
   delay(1000);
-  digitalWrite(GREEN,HIGH);
+  digitalWrite(GREEN,LOW);
   delay(1000);
-  digitalWrite(BLUE, HIGH);
-  digitalWrite(LED_PWR, HIGH);m
+  digitalWrite(BLUE, LOW);
+  digitalWrite(LED_PWR, LOW);
 
 }

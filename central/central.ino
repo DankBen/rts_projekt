@@ -43,12 +43,13 @@ int soil_1, soil_2 = 0;
 int stamp = millis();
 
 void loop(){
-
+  
   if(soil_1 == 0 || soil_2 == 0){
     if(soil_1 == 0){
       BLEDevice peripheral1 = connectToUuid("1000");
       delay(1000);
       soil_1 = readSoilMoisture(peripheral1, 1);
+      peripheral1.disconnect(); 
       return;
     }
     delay(1000);
@@ -56,20 +57,16 @@ void loop(){
       BLEDevice peripheral2 = connectToUuid("2000");
       delay(1000);
       soil_2 = readSoilMoisture(peripheral2, 2);
+      peripheral2.disconnect();
       return;
     }
   }
 
-  while(millis() > stamp + 5000 ){
-    if(soil_1 == 0 || soil_2 == 0){
-      return;  
-    }
-    true;
-  }
-  delay(2000);
-  float value = calcNeededWater(soil_1, soil_2);
-  Serial.println(value);
-
+  delay(10000);
+  stamp = millis();  
+  float val = calcNeededWater(soil_1, soil_2);
+  Serial.println(val);
+  indicate(val);
   soil_1 = 0;
   soil_2 = 0;
   
@@ -90,7 +87,6 @@ BLEDevice connectToUuid(char Uuid[]){
     if (!peripheral.connect()) {
       Serial.print("Failed to connect to ");
       Serial.println(Uuid);
-      peripheral.disconnect();
       return peripheral;
     }
 
@@ -110,37 +106,41 @@ BLEDevice connectToUuid(char Uuid[]){
 int readSoilMoisture(BLEDevice peripheral, int device){
   if (peripheral.connected()){
     BLECharacteristic soilCharacteristic = peripheral.characteristic(device == 1 ? "1001" : "2001");
-    byte val = 0;
-    soilCharacteristic.readValue(val);
+    //byte val = 0;
+    int val = 0;
+    soilCharacteristic.readValue((char*)&val, sizeof(val));
     Serial.print(device == 1 ? "Soil Monitor 1 reads: " : "Soil Monitor 2 reads: ");
     Serial.println(val);
-    Serial.println((int) val);  
+    //Serial.println((int) val);  
+    return val;
   }
-
-  
-  peripheral.disconnect();    
+  Serial.println("couldnt read because of missing conneciton");
+  delay(1000);
+  return 0; 
 }
 
 
 void indicate(float moisture){
-  if(moisture < 3){
+  if(moisture < 3.0){
+    digitalWrite(RED, HIGH);
+    digitalWrite(BLUE, HIGH);
     digitalWrite(GREEN, LOW);
   }
-  if(moisture < 7){
+  else if(moisture < 7.0){
+    digitalWrite(RED, HIGH);
     digitalWrite(GREEN, LOW);
     digitalWrite(BLUE, LOW);
   }
   else{
     digitalWrite(RED, LOW);
+    digitalWrite(BLUE, HIGH);
+    digitalWrite(GREEN, HIGH);
   }
 }
 
 // returns representation of how soon water is needed on a scale from 0 to 10
 float calcNeededWater(int soil1, int soil2){
   // if the soil is below this threshol+d, the plants need to be watered immediately
-  if (soil1 < 280 || soil2 < 280){
-    return 10.0;
-  }
 
   float total = 0.0;
 
@@ -152,17 +152,27 @@ float calcNeededWater(int soil1, int soil2){
   APDS.readColor(r,g,b,a);
   
   // if its too dark, we never water 
+
+  Serial.print("Ambient Light reading: ");
+  Serial.println(a);
+  
   if ( a < 300){
+    Serial.println("Too Dark to water.");
     return 0.0;  
   }
 
   
   float temp = HTS.readTemperature();
-
+  
+  Serial.print(temp);
+  Serial.println(" °C");
+  
   // low temperature -> lesss water evaporates
   if (temp < 22.0 && temp > 10.0){
     total +=  (22.0 - temp) * 0.33;
+    Serial.print("Temperature is in Optimal Range");
   }
+
 
   // base formula 
 
