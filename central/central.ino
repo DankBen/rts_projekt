@@ -16,7 +16,10 @@ void setup(){
   pinMode(BLUE, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(LED_PWR, OUTPUT);
-  
+  // set pins OFF, HIGH and LOW are flipped...
+  digitalWrite(RED, HIGH);
+  digitalWrite(BLUE, HIGH);
+  digitalWrite(GREEN, HIGH);  
   if (!BLE.begin()){
     Serial.println("starting BLE failed!");
 
@@ -121,13 +124,14 @@ int readSoilMoisture(BLEDevice peripheral, int device){
 
 void indicate(float moisture){
   if(moisture < 3){
-    
+    digitalWrite(GREEN, LOW);
   }
   if(moisture < 7){
-    
+    digitalWrite(GREEN, LOW);
+    digitalWrite(BLUE, LOW);
   }
   else{
-    
+    digitalWrite(RED, LOW);
   }
 }
 
